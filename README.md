@@ -146,51 +146,17 @@ O ESP32 recebe o valor, converte para inteiro e atualiza o período de piscagem 
 │   ├── blink.c
 │   └── blink.h
 │
+├── index.html
 ├── CMakeLists.txt
 ├── sdkconfig
-└── web
-    └── index.html
-```
-
----
-
-## Compilação
-
-Configurar o ambiente do ESP-IDF:
-
-```bash
-. $HOME/esp/esp-idf/export.sh
-```
-
-Compilar:
-
-```bash
-idf.py build
-```
-
-Gravar na placa:
-
-```bash
-idf.py flash
-```
-
-Monitor serial:
-
-```bash
-idf.py monitor
+└── README.md
 ```
 
 ---
 
 ## Executando a Interface Web
 
-Entre na pasta onde está o arquivo:
-
-```text
-index.html
-```
-
-Inicie um servidor HTTP simples:
+Na raiz do projeto execute:
 
 ```bash
 python3 -m http.server 8000
@@ -201,6 +167,40 @@ Abra no navegador:
 ```text
 http://localhost:8000
 ```
+
+O arquivo `index.html` será carregado automaticamente pelo navegador.
+
+---
+
+## Arquivos Principais
+
+### index.html
+
+Interface Web Bluetooth responsável por:
+
+* Localizar o dispositivo BLE
+* Estabelecer conexão GATT
+* Obter o serviço BLE
+* Obter a characteristic de controle
+* Enviar o período de piscagem para o ESP32
+
+### ble_server.c
+
+Implementa o servidor BLE do ESP32:
+
+* Inicialização da pilha BLE
+* Configuração do advertising
+* Criação do serviço GATT
+* Criação da characteristic de escrita
+* Recepção dos comandos enviados pelo navegador
+
+### blink.c
+
+Implementa a lógica de controle do LED, permitindo a alteração dinâmica do período de piscagem.
+
+### main.c
+
+Ponto de entrada da aplicação, responsável pela inicialização dos módulos do sistema.
 
 ---
 
