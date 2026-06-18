@@ -1,0 +1,232 @@
+<!--
+========================================================
+Projeto: Controle BLE do ESP32
+Autor: Carlos Perez
+Data: 15/06/2026
+Versão: 1.0
+
+Descrição:
+Página Web Bluetooth para controlar a frequência
+de piscagem do LED de um ESP32 via BLE.
+
+Execute na pasta em que está este arquivo index.html:
+python3 -m http.server 8000
+
+Serviço:
+0x00FF
+
+Characteristic:
+0xFF01
+
+========================================================
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>ESP32 Blink Control</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+}
+
+input {
+    padding: 10px;
+    width: 120px;
+}
+
+#status {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+#log {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 250px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+</style>
+</head>
+
+<body>
+
+<h2>ESP32 Blink Control</h2>
+
+<button id="connect">
+Conectar
+</button>
+
+<br><br>
+
+<label>
+Período (ms):
+</label>
+
+<input
+    id="period"
+    type="number"
+    value="1000"
+    min="1">
+
+<button id="send">
+Enviar
+</button>
+
+<div id="status">
+Desconectado
+</div>
+
+<div id="log"></div>
+
+<script>
+
+let periodCharacteristic = null;
+let device = null;
+let sending = false;
+
+const SERVICE_UUID = 0x00FF;
+const PERIOD_UUID  = 0xFF01;
+
+const statusDiv = document.getElementById("status");
+const logDiv    = document.getElementById("log");
+const sendBtn   = document.getElementById("send");
+
+function log(msg)
+{
+    console.log(msg);
+
+    logDiv.innerHTML += msg + "\n";
+
+    logDiv.scrollTop = logDiv.scrollHeight;
+
+    statusDiv.innerText = msg;
+}
+
+document
+.getElementById("connect")
+.addEventListener("click", async () =>
+{
+    try
+    {
+        log("Procurando dispositivo...");
+
+        device =
+            await navigator.bluetooth.requestDevice({
+                filters: [{name: "ESP32-BLINK"}],
+                optionalServices: [SERVICE_UUID]});
+
+        log("Dispositivo selecionado: " + (device.name || "sem nome"));
+
+        device.ongattserverdisconnected = () =>
+        {
+            periodCharacteristic = null;
+            log("Dispositivo desconectado");
+        };
+
+        log("Conectando ao GATT...");
+
+        const server =
+            await device.gatt.connect();
+
+        log("Obtendo serviço...");
+
+        const service =
+            await server.getPrimaryService(
+                SERVICE_UUID);
+
+        log("Obtendo characteristic de período...");
+
+        periodCharacteristic =
+            await service.getCharacteristic(PERIOD_UUID);
+
+        log("Conectado com sucesso");
+
+        console.log(periodCharacteristic.properties);
+    }
+    catch(error)
+    {
+        console.error(error);
+
+        log(
+            "Erro conexão: "
+            + error.name
+            + " - "
+            + error.message);
+    }
+});
+
+document
+.getElementById("send")
+.addEventListener("click", async () =>
+{
+    if (!periodCharacteristic)
+    {
+        alert("Conecte primeiro.");
+        return;
+    }
+
+    if (sending)
+    {
+        log("Aguardando operação anterior...");
+        return;
+    }
+
+    sending = true;
+
+    sendBtn.disabled = true;
+
+    try
+    {
+        const value =
+            parseInt(
+                document.getElementById("period").value);
+
+        if (isNaN(value) || value < 1)
+        {
+            alert("Informe um período válido.");
+            return;
+        }
+
+        log("Enviando: " + value);
+
+        const data =
+            new TextEncoder().encode(
+            value.toString());
+
+        await periodCharacteristic.writeValue(data);
+
+        log("Enviado com sucesso: " + value);
+    }
+    catch(error)
+    {
+        console.error(error);
+
+        log(
+            "Erro envio: "
+            + error.name
+            + " - "
+            + error.message);
+    }
+    finally
+    {
+        sending = false;
+        sendBtn.disabled = false;
+    }
+});
+
+</script>
+
+</body>
+</html>
