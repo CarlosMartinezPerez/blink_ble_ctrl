@@ -279,6 +279,158 @@ Não foram implementados:
 
 ---
 
+## Configuração do Navegador para Web Bluetooth
+
+O projeto utiliza a API Web Bluetooth, que atualmente é suportada por navegadores baseados em Chromium, como:
+
+* Google Chrome
+* Chromium
+* Microsoft Edge
+* Brave
+
+### Requisitos
+
+* Bluetooth habilitado no computador
+* ESP32 anunciando via BLE
+* Navegador compatível com Web Bluetooth
+
+---
+
+### Linux
+
+Verifique se o serviço Bluetooth está ativo:
+
+```bash
+systemctl status bluetooth
+```
+
+Caso necessário:
+
+```bash
+sudo systemctl start bluetooth
+sudo systemctl enable bluetooth
+```
+
+Verifique se o adaptador Bluetooth está funcionando:
+
+```bash
+bluetoothctl list
+```
+
+---
+
+### Executar através de um servidor HTTP
+
+Por questões de segurança, a API Web Bluetooth não funciona abrindo o arquivo HTML diretamente pelo sistema de arquivos.
+
+Não utilize:
+
+```text
+file:///home/usuario/projeto/index.html
+```
+
+Utilize um servidor HTTP local:
+
+```bash
+python3 -m http.server 8000
+```
+
+Depois abra:
+
+```text
+http://localhost:8000
+```
+
+---
+
+### Permissões de Bluetooth
+
+Na primeira conexão, o navegador exibirá uma janela solicitando acesso ao dispositivo BLE.
+
+Selecione:
+
+```text
+ESP32-BLINK
+```
+
+e confirme a conexão.
+
+---
+
+### Verificação de Compatibilidade
+
+Abra as ferramentas de desenvolvedor do navegador (F12) e execute:
+
+```javascript
+navigator.bluetooth
+```
+
+Se o navegador retornar um objeto Bluetooth, a API está disponível.
+
+Exemplo:
+
+```javascript
+Bluetooth { ... }
+```
+
+---
+
+### Problemas Comuns
+
+#### O dispositivo não aparece na lista
+
+Verifique:
+
+* ESP32 energizado
+* Advertising BLE ativo
+* Nome configurado como:
+
+```text
+ESP32-BLINK
+```
+
+* Bluetooth do computador habilitado
+
+---
+
+#### Erro "Bluetooth not available"
+
+Verifique:
+
+* Adaptador Bluetooth reconhecido pelo sistema
+* Serviço Bluetooth ativo
+* Navegador compatível com Web Bluetooth
+
+---
+
+#### Erro "User cancelled the requestDevice chooser"
+
+O usuário fechou a janela de seleção de dispositivos sem escolher um dispositivo BLE.
+
+Basta tentar novamente.
+
+---
+
+#### Erro ao abrir o HTML diretamente
+
+A API Web Bluetooth exige contexto seguro.
+
+Utilize:
+
+```text
+http://localhost
+```
+
+ou
+
+```text
+https://
+```
+
+em vez de abrir o arquivo diretamente pelo navegador.
+
+---
+
 ## Objetivo Educacional
 
 Este projeto foi desenvolvido para demonstrar uma comunicação BLE direta entre um navegador web e um ESP32, sem a necessidade de aplicativos móveis ou bibliotecas JavaScript externas. O foco é mostrar como utilizar a API Web Bluetooth para controlar um dispositivo embarcado de forma simples e transparente.
