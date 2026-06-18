@@ -279,6 +279,12 @@ Não foram implementados:
 
 ---
 
+## Objetivo Educacional
+
+Este projeto foi desenvolvido para demonstrar uma comunicação BLE direta entre um navegador web e um ESP32, sem a necessidade de aplicativos móveis ou bibliotecas JavaScript externas. O foco é mostrar como utilizar a API Web Bluetooth para controlar um dispositivo embarcado de forma simples e transparente.
+
+---
+
 ## Autor
 
 Carlos Martinez Perez
