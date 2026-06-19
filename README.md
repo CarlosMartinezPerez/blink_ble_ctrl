@@ -431,6 +431,27 @@ em vez de abrir o arquivo diretamente pelo navegador.
 
 ---
 
+### Compatibilidade de Navegadores
+
+Este projeto utiliza a API Web Bluetooth.
+
+Atualmente ela é suportada principalmente por navegadores baseados em Chromium:
+
+- Google Chrome
+- Chromium
+- Microsoft Edge
+- Brave
+
+O Firefox não oferece suporte oficial à API Web Bluetooth para páginas web comuns.
+
+Se o navegador exibir o erro:
+
+TypeError - navigator.bluetooth is undefined
+
+utilize um navegador baseado em Chromium.
+
+---
+
 ## Objetivo Educacional
 
 Este projeto foi desenvolvido para demonstrar uma comunicação BLE direta entre um navegador web e um ESP32, sem a necessidade de aplicativos móveis ou bibliotecas JavaScript externas. O foco é mostrar como utilizar a API Web Bluetooth para controlar um dispositivo embarcado de forma simples e transparente.
